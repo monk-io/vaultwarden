@@ -1,0 +1,10 @@
+{
+  "outcome": "success",
+  "templateType": "standalone",
+  "deployVerified": true,
+  "endpoint": "http://127.0.0.1:18080/ for vaultwarden/vaultwarden-local; vaultwarden/stack is ingress-only with no local endpoint",
+  "httpStatus": 200,
+  "question": "",
+  "blockingReason": "",
+  "summary": "Generated MANIFEST, vaultwarden.yaml, and stack.yaml. vaultwarden/vaultwarden is the base runnable using docker.io/vaultwarden/server:latest with persistent /data storage, public signup disabled, and the admin panel disabled by default unless an inheriting template provides ADMIN_TOKEN from a Monk secret. vaultwarden/vaultwarden-local publishes HTTP on host port 18080 and deployed locally with ready=true/alive=true; external curl to http://127.0.0.1:18080/ returned HTTP 200. vaultwarden/vaultwarden-secure is the production-oriented ingress-only runnable with no local public port; vaultwarden/stack deployed locally and its child runnable vaultwarden-secure is ready=true/alive=true, with logs showing Rocket launched on 0.0.0.0:80. Static YAML parsing passed and Monk analyze reported the project has a deployable MANIFEST."
+}
