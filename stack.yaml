@@ -1,0 +1,53 @@
+namespace: vaultwarden
+
+vaultwarden-secure:
+  defines: runnable
+  inherits: vaultwarden/vaultwarden
+  metadata:
+    name: Vaultwarden Secure
+    description: Production-oriented Vaultwarden runnable with public ingress, persistent storage, disabled public signup, and the admin panel disabled unless an inheriting template supplies ADMIN_TOKEN from a Monk secret.
+    tags:
+      - password-manager
+      - production
+  services:
+    http:
+      description: Public Vaultwarden web vault and API HTTP service exposed through Monk ingress.
+      container: server
+      port: 80
+      protocol: tcp
+      ingress-routes:
+        web:
+          path-prefix: /
+  variables:
+    domain:
+      type: string
+      env: DOMAIN
+      description: Public HTTPS URL assigned to the Monk ingress route. Override this with the real deployed hostname in production.
+      value: https://vaultwarden.example.com
+    signups-allowed:
+      type: bool
+      env: SIGNUPS_ALLOWED
+      description: Public account registration is disabled for the production-oriented stack.
+      value: false
+  checks:
+    readiness:
+      code: http-get-service("vaultwarden/vaultwarden-secure", "http", "/") get-member("status") 200 eq?
+      period: 10
+      initialDelay: 10
+      attempts: 24
+    liveness:
+      code: tcp-check-service("vaultwarden/vaultwarden-secure", "http")
+      period: 30
+      initialDelay: 20
+
+stack:
+  defines: group
+  metadata:
+    name: Vaultwarden Stack
+    description: Secure production-intended Vaultwarden stack. It deploys the authenticated web vault/API with persistent storage and ingress, with no backing database dependency beyond default SQLite storage.
+    tags:
+      - password-manager
+      - stack
+      - production
+  members:
+    - vaultwarden/vaultwarden-secure

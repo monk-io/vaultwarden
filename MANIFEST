@@ -1,0 +1,4 @@
+LOAD vaultwarden.yaml
+LOAD stack.yaml
+
+ENTRY vaultwarden/stack

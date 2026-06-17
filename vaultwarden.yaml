@@ -1,0 +1,117 @@
+namespace: vaultwarden
+
+vaultwarden:
+  defines: runnable
+  metadata:
+    name: Vaultwarden
+    description: Bitwarden-compatible password manager server using the public Vaultwarden container image, SQLite by default, and persistent Monk-managed storage at /data. Optional external PostgreSQL or MySQL databases can be configured by inheriting this runnable and setting DATABASE_URL; if enabling the admin panel, set ADMIN_TOKEN from a Monk secret such as secret("vaultwarden-admin-token").
+    tags:
+      - password-manager
+      - bitwarden
+      - self-hosted
+  containers:
+    server:
+      image: docker.io/vaultwarden/server:latest
+      restart: unless-stopped
+      mounted-volumes:
+        data:
+          path: /data
+  volumes:
+    data:
+      kind: local
+      name: vaultwarden-data
+  services:
+    http:
+      description: Vaultwarden web vault and API HTTP service.
+      container: server
+      port: 80
+      protocol: tcp
+  variables:
+    disable-admin-token:
+      type: bool
+      env: DISABLE_ADMIN_TOKEN
+      description: Keeps Vaultwarden admin-panel token bypass disabled. Leave ADMIN_TOKEN unset to disable /admin, or have an inheriting template set sensitive ADMIN_TOKEN from a Monk secret.
+      value: false
+    data-folder:
+      type: string
+      env: DATA_FOLDER
+      description: Persistent data directory used by Vaultwarden for the default SQLite database and file storage.
+      value: /data
+    signups-allowed:
+      type: bool
+      env: SIGNUPS_ALLOWED
+      description: Whether unauthenticated users may create accounts from the public signup form.
+      value: false
+    invitations-allowed:
+      type: bool
+      env: INVITATIONS_ALLOWED
+      description: Whether existing users may invite additional users.
+      value: true
+    emergency-access-allowed:
+      type: bool
+      env: EMERGENCY_ACCESS_ALLOWED
+      description: Whether Vaultwarden emergency access features are enabled.
+      value: true
+    sends-allowed:
+      type: bool
+      env: SENDS_ALLOWED
+      description: Whether users may create Bitwarden Sends.
+      value: true
+    websocket-enabled:
+      type: bool
+      env: ENABLE_WEBSOCKET
+      description: Whether websocket notifications are enabled.
+      value: true
+    log-level:
+      type: string
+      env: LOG_LEVEL
+      description: Vaultwarden log verbosity.
+      value: info
+  checks:
+    readiness:
+      code: http-get-service("vaultwarden/vaultwarden", "http", "/") get-member("status") 200 eq?
+      period: 10
+      initialDelay: 10
+      attempts: 24
+    liveness:
+      code: tcp-check-service("vaultwarden/vaultwarden", "http")
+      period: 30
+      initialDelay: 20
+
+vaultwarden-local:
+  defines: runnable
+  inherits: vaultwarden/vaultwarden
+  metadata:
+    name: Vaultwarden Local
+    description: Local verification flavor of Vaultwarden that publishes the HTTP service on a non-privileged host port and does not use ingress.
+    tags:
+      - password-manager
+      - local-test
+  services:
+    http:
+      description: Locally published Vaultwarden web vault and API HTTP service for verification.
+      container: server
+      port: 80
+      protocol: tcp
+      publish: true
+      host-port: <- $host-port
+  variables:
+    host-port:
+      type: int
+      description: Non-privileged host port used by the local verification flavor.
+      value: 18080
+    domain:
+      type: string
+      env: DOMAIN
+      description: Local URL used by Vaultwarden when the local verification flavor is published.
+      value: <- "http://127.0.0.1:" $host-port concat-all
+  checks:
+    readiness:
+      code: http-get-service("vaultwarden/vaultwarden-local", "http", "/") get-member("status") 200 eq?
+      period: 10
+      initialDelay: 10
+      attempts: 24
+    liveness:
+      code: tcp-check-service("vaultwarden/vaultwarden-local", "http")
+      period: 30
+      initialDelay: 20
