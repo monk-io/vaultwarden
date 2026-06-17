@@ -1,0 +1,10 @@
+{
+  "outcome": "success",
+  "templateType": "standalone",
+  "deployVerified": true,
+  "endpoint": "http://127.0.0.1:18080/; vaultwarden/stack verified locally by vaultwarden-secure workload readiness because ingress is production-only",
+  "httpStatus": 200,
+  "question": "",
+  "blockingReason": "",
+  "summary": "Generated MANIFEST, vaultwarden.yaml, and stack.yaml. vaultwarden.yaml defines the base vaultwarden/vaultwarden runnable with persistent /data storage, self-documenting metadata/services/variables, no required secrets, and the vaultwarden/vaultwarden-local flavor publishing HTTP on host port 18080 for local verification. stack.yaml defines vaultwarden/vaultwarden-secure with ingress-only HTTP exposure and disabled public signup, plus vaultwarden/stack as the production-oriented group. Monk project analysis passed, analyzer diagnostics are informational only, vaultwarden/vaultwarden-local is running and ready with external curl HTTP 200 at http://127.0.0.1:18080/, and vaultwarden/stack deployed locally with child runnable vaultwarden/vaultwarden-secure running and ready. Ingress was not curled locally by policy."
+}
