@@ -14,7 +14,7 @@
         "maildev": "npm:@timshel_npm/maildev@3.2.5"
     },
     "dependencies": {
-        "mysql2": "3.15.3",
+        "mysql2": "3.23.1",
         "otpauth": "9.4.1",
         "pg": "8.16.3"
     }
